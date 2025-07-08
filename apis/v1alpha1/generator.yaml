@@ -4,7 +4,7 @@ ignore:
   resource_names:
   # Cluster
   # Service
-  - CapacityProvider
+  # CapacityProvider  # Removed from ignore list
   # TaskDefinition
   - TaskSet
   field_paths:
@@ -44,6 +44,23 @@ operations:
     - ReadMany
     resource_name: Service
     output_wrapper_field_path: Services
+  DescribeCapacityProviders:
+    operation_type:
+    - ReadMany
+    resource_name: CapacityProvider
+    output_wrapper_field_path: CapacityProviders
+  CreateCapacityProvider:
+    operation_type:
+    - Create
+    resource_name: CapacityProvider
+  DeleteCapacityProvider:
+    operation_type:
+    - Delete
+    resource_name: CapacityProvider
+  UpdateCapacityProvider:
+    operation_type:
+    - Update
+    resource_name: CapacityProvider
 resources: 
   Cluster: 
     fields:
@@ -248,3 +265,48 @@ resources:
     exceptions:
       terminal_codes:
       - InvalidParameterException
+  CapacityProvider:
+    fields:
+      Name:
+        is_primary_key: true
+        print:
+          name: CAPACITYPROVIDER
+      Status:
+        print:
+          name: STATUS
+        is_read_only: true
+      UpdateStatus:
+        is_read_only: true
+      UpdateStatusReason:
+        is_read_only: true
+      AutoScalingGroupProvider.ManagedScaling.Status:
+        is_read_only: true
+      AutoScalingGroupProvider.ManagedScaling.Type:
+        go_tag: json:"type,omitempty"
+      AutoScalingGroupProvider.ManagedTerminationProtection:
+        is_immutable: true
+    list_operation:
+      match_fields:
+      - Name
+    exceptions:
+      errors:
+        404:
+          code: CapacityProviderNotFoundException
+      terminal_codes:
+      - InvalidParameterException
+      - ClientException
+      - ServerException
+    renames:
+      operations:
+        CreateCapacityProvider:
+          input_fields:
+            Name: Name
+        DeleteCapacityProvider:
+          input_fields:
+            CapacityProvider: Name
+        UpdateCapacityProvider:
+          input_fields:
+            CapacityProvider: Name
+        DescribeCapacityProviders:
+          input_fields:
+            CapacityProviders: Name
