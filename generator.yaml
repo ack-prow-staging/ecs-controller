@@ -4,7 +4,7 @@ ignore:
   resource_names:
   # Cluster
   # Service
-  - CapacityProvider
+  # CapacityProvider (removed from ignore list)
   # TaskDefinition
   - TaskSet
   field_paths:
@@ -44,6 +44,11 @@ operations:
     - ReadMany
     resource_name: Service
     output_wrapper_field_path: Services
+  DescribeCapacityProviders:
+    operation_type:
+    - ReadMany
+    resource_name: CapacityProvider
+    output_wrapper_field_path: CapacityProviders
 resources: 
   Cluster: 
     fields:
@@ -248,3 +253,50 @@ resources:
     exceptions:
       terminal_codes:
       - InvalidParameterException
+  CapacityProvider:
+    fields:
+      Name:
+        is_primary_key: true
+        print:
+          name: CAPACITYPROVIDER
+      Status:
+        is_read_only: true
+        print:
+          name: STATUS
+      AutoScalingGroupProvider.AutoScalingGroupARN:
+        references:
+          path: Status.ACKResourceMetadata.ARN
+          resource: AutoScalingGroup
+          service_name: autoscaling
+      AutoScalingGroupProvider.ManagedScaling.Status:
+        is_read_only: true
+      UpdateStatus:
+        is_read_only: true
+        print:
+          name: UPDATESTATUS
+      UpdateStatusReason:
+        is_read_only: true
+    list_operation:
+      match_fields:
+      - Name
+    exceptions:
+      errors:
+        404:
+          code: CapacityProviderNotFoundException
+      terminal_codes:
+      - InvalidParameterException
+      - ClientException
+    renames:
+      operations:
+        CreateCapacityProvider:
+          input_fields:
+            CapacityProviderName: Name
+        DeleteCapacityProvider:
+          input_fields:
+            CapacityProviderName: Name
+        UpdateCapacityProvider:
+          input_fields:
+            CapacityProviderName: Name
+        DescribeCapacityProviders:
+          input_fields:
+            CapacityProviderName: Name
